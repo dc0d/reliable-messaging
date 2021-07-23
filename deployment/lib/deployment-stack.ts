@@ -1,49 +1,27 @@
 import * as cdk from "@aws-cdk/core";
-import * as lambda from "@aws-cdk/aws-lambda";
-import {
-  SqsEventSource,
-  DynamoEventSource,
-  SqsDlq,
-} from "@aws-cdk/aws-lambda-event-sources";
 
 import { MessagingStack } from "./messaging-stack";
-import { ServiceStack } from "./service-stack";
-import { DataStack } from "./data-stack";
-import * as env from "../env";
+import { PersistenceStack } from "./persistence-stack";
+import { ServerlessStack } from "./serverless-stack";
+import * as conf from "./conf";
 
-const messagingStackName = env.messagingStackName;
-const serviceStackName = env.serviceStackName;
-const dataStackName = env.dataStackName;
-
-export class TransactionalService extends cdk.Construct {
+export class DeploymentStack extends cdk.Construct {
   constructor(scope: cdk.Construct, id: string, props?: {}) {
     super(scope, id);
 
-    const dataStack = new DataStack(this, dataStackName);
+    new PersistenceStack(this, conf.stacks.persistence, props);
 
-    const messagingStac = new MessagingStack(this, messagingStackName);
-
-    const serviceStack = new ServiceStack(this, serviceStackName);
-    serviceStack.addDependency(messagingStac);
-
-    //
-
-    serviceStack.serviceFn.addEventSource(
-      new SqsEventSource(messagingStac.incomingQueues.incomingEventsQueue, {
-        batchSize: 1,
-      })
+    const messagingStack = new MessagingStack(
+      this,
+      conf.stacks.messaging,
+      props
     );
 
-    //
-
-    serviceStack.notifierFn.addEventSource(
-      new DynamoEventSource(dataStack.outgoingEvents, {
-        batchSize: 10,
-        startingPosition: lambda.StartingPosition.TRIM_HORIZON,
-        bisectBatchOnError: true,
-        onFailure: new SqsDlq(messagingStac.outgoingDynamoDBDLQ),
-        retryAttempts: 10,
-      } as any)
+    new ServerlessStack(
+      this,
+      conf.stacks.serverless,
+      props,
+      messagingStack.incomingEventsQueue
     );
   }
 }

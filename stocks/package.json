@@ -1,0 +1,39 @@
+{
+  "name": "stocks",
+  "version": "0.1.0",
+  "main": "index.js",
+  "author": "@dc0d",
+  "license": "MIT",
+  "scripts": {
+    "cli": "ts-node src/cli.ts",
+    "test": "jest",
+    "test:e2e": "jest -c jest.integration.config.js",
+    "lint": "eslint src/ --ext .js,.jsx,.ts,.tsx",
+    "build": "tsc -p tsconfig.json",
+    "clean": "rm -rf dist build",
+    "ts-node": "ts-node",
+    "docs": "typedoc --entryPoints src/main.ts"
+  },
+  "devDependencies": {
+    "@types/aws-lambda": "^8.10.79",
+    "@types/jest": "^26.0.24",
+    "@types/node": "^16.3.3",
+    "@types/pino": "^6.3.9",
+    "@types/uuid": "^8.3.1",
+    "@typescript-eslint/eslint-plugin": "^4.28.3",
+    "@typescript-eslint/parser": "^4.28.3",
+    "eslint": "^7.30.0",
+    "jest": "^27.0.6",
+    "ts-jest": "^27.0.3",
+    "ts-node": "^10.1.0",
+    "typescript": "^4.3.5"
+  },
+  "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.22.0",
+    "@aws-sdk/client-sqs": "^3.22.0",
+    "@aws-sdk/util-dynamodb": "^3.22.0",
+    "aws-lambda": "^1.0.6",
+    "pino": "^6.12.0",
+    "uuid": "^8.3.2"
+  }
+}
